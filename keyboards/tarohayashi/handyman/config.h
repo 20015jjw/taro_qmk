@@ -3,5 +3,4 @@
 
 #pragma once
 
-#define RGBLIGHT_LAYERS
-#define RGBLIGHT_MAX_LAYERS 6
+#define RGBLIGHT_LAYERS_RETAIN_VAL

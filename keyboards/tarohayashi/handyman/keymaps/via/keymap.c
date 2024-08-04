@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "add_keycodes.h"
+#include "lib/add_keycodes.h"
 
 enum custom_keycode {
   BASE = 0,
@@ -23,7 +23,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI, XXXXXXX,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD, XXXXXXX,
+        RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD, RGB_LAYERS,
         XXXXXXX, LT(LIGHT, KC_U), RGB_MOD, RGB_TOG, RGB_RMOD,
         // LEVER
         XXXXXXX, XXXXXXX, XXXXXXX
@@ -32,19 +32,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
     [BASE] =   {
-      ENCODER_CCW_CW(SC_UP, SC_DOWN), 
-      ENCODER_CCW_CW(KC_RBRC, KC_LBRC), 
+      ENCODER_CCW_CW(SC_UP, SC_DOWN),
+      ENCODER_CCW_CW(KC_RBRC, KC_LBRC),
       ENCODER_CCW_CW(KC_MINS, KC_QUOT)
       },
-    [LIGHT] = { 
-      ENCODER_CCW_CW(RGB_HUI, RGB_HUD), 
-      ENCODER_CCW_CW(RGB_VAI, RGB_VAD), 
+    [LIGHT] = {
+      ENCODER_CCW_CW(RGB_HUI, RGB_HUD),
+      ENCODER_CCW_CW(RGB_VAI, RGB_VAD),
       ENCODER_CCW_CW(RGB_MOD, RGB_RMOD)
       }
 };
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    process_record_addedkeycodes(keycode, record);
-    return true;
-}
-
