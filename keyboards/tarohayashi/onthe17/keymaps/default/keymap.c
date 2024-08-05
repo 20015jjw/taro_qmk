@@ -11,7 +11,7 @@ enum custom_keycodes{
   SEND_31, SEND_32, SEND_33, SEND_34, SEND_35, SEND_36, SEND_37, SEND_38, SEND_39, SEND_40,
   SEND_41, SEND_42, SEND_43, SEND_44, SEND_45, SEND_46, SEND_47, SEND_48, SEND_49, SEND_50,
   SEND_51, SEND_52, SEND_53, SEND_54, SEND_55, SEND_56, SEND_57, SEND_58, SEND_59, SEND_60,
-  SEND_61, SEND_62, SEND_63, SEND_64
+  SEND_61, SEND_62, SEND_63, SEND_64, SEND_65, SEND_66, SEND_67, SEND_68
 };
 
 // キーマップ
@@ -21,7 +21,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       SEND_16, SEND_17, SEND_18, SEND_19, SEND_20, SEND_21, SEND_22, SEND_23, SEND_24, SEND_25, SEND_26, SEND_27, SEND_28, SEND_29, SEND_30,
       SEND_31, SEND_32, SEND_33, SEND_34, SEND_35, SEND_36, SEND_37, SEND_38, SEND_39, SEND_40, SEND_41, SEND_42, SEND_43, SEND_44, SEND_45,
       SEND_46, SEND_47, SEND_48, SEND_49, SEND_50, SEND_51, SEND_52, SEND_53, SEND_54, SEND_55, SEND_56, SEND_57, SEND_58, SEND_59, SEND_60,
-      SEND_61, SEND_62, SEND_63, SEND_64 
+      SEND_61, SEND_62, SEND_63, SEND_64,
+      KC_LEFT, KC_UP, KC_DOWN, KC_RIGHT
     )
 };
 
@@ -93,6 +94,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     case SEND_62: if (record->event.pressed) SEND_STRING("62 "); break;
     case SEND_63: if (record->event.pressed) SEND_STRING("63 "); break;
     case SEND_64: if (record->event.pressed) SEND_STRING("64 "); break;
+    case SEND_65: if (record->event.pressed) SEND_STRING("65 "); break;
+    case SEND_66: if (record->event.pressed) SEND_STRING("66 "); break;
+    case SEND_67: if (record->event.pressed) SEND_STRING("67 "); break;
+    case SEND_68: if (record->event.pressed) SEND_STRING("68 "); break;
   }
     return true;
 }

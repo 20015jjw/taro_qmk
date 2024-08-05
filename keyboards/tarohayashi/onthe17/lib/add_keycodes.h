@@ -4,10 +4,6 @@
 #pragma once
 #include "quantum.h"
 
-#define TERM_SCROLL 400
-#define TERM_SLOW 400
-#define CPI_SLOW 600
-
 // 追加するキーコード
 enum TH_keycodes{
     CMD_CTL = QK_KB_0,
@@ -32,7 +28,14 @@ enum TH_keycodes{
     LNG2_SLOW,
     BTN1_SLOW,
     BTN2_SLOW,
-    BTN3_SLOW
+    BTN3_SLOW,
+    MOD_KEY,
+    ESC_KEY,
+    TAB_KEY,
+    LNG1_KEY,
+    LNG2_KEY,
+    MOD_CUR,
+    RGB_LAYERS,
 };
 
 bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record);
