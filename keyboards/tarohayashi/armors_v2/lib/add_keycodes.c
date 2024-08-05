@@ -1,9 +1,9 @@
 // Copyright 2021 Hayashi (@w_vwbw)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "add_keycodes.h"
-#include "quantum.h"
+#include "lib/add_keycodes.h"
 #include "os_detection.h"
+#include "lib/common_armors_v2.h"
 
 bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -307,7 +307,14 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
             break;
+        case RGB_LAYERS:
+                if (record->event.pressed) {
+                    am_config.rgb_layers = !am_config.rgb_layers;
+                    eeconfig_update_kb(am_config.raw);
+                }
+                return false;
+            break;
     }
-   
+
     return true;
 }

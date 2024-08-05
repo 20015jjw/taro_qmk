@@ -27,6 +27,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
 /* マトリクス走査 */
 // 初期化
 void matrix_init_kb(void) {
+    cb_config.raw = eeconfig_read_kb();
 
     matrix_init_user();
 }

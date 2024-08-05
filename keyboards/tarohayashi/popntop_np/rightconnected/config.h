@@ -2,8 +2,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
-
-/* RGB MATRIX */
-#define RGB_MATRIX_LED_COUNT 60
-#define RGB_MATRIX_KEYPRESSES
-#define RGB_MATRIX_FRAMEBUFFER_EFFECTS
+#define SPLIT_WATCHDOG_ENABLE
+#define RGBLIGHT_LAYERS_RETAIN_VAL

@@ -308,12 +308,12 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             return false;
             break;
         case RGB_LAYERS:
-                if (record->event.pressed) {
-                    hm_config.rgb_layers = !hm_config.rgb_layers;
-                    eeconfig_update_kb(hm_config.raw);
-                }
-                return false;
-                break;
+            if (record->event.pressed) {
+                hm_config.rgb_layers = !hm_config.rgb_layers;
+                eeconfig_update_kb(hm_config.raw);
+            }
+            return false;
+            break;
     }
 
     return true;

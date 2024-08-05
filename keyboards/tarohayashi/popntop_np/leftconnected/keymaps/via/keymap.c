@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "add_keycodes.h"
+#include "lib/add_keycodes.h"
 
 enum layer_names {
   BASE = 0,
@@ -51,8 +51,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
     )
 };
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    process_record_addedkeycodes(keycode, record);
-    return true;
-}

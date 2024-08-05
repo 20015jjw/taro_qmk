@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "add_keycodes.h"
+#include "lib/add_keycodes.h"
 
 enum layer_names {
   BASE = 0,
@@ -26,28 +26,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [LIGHT] = LAYOUT(
       LT(LIGHT, KC_ESC), RGB_MOD, RGB_RMOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
       RGB_TOG, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI, XXXXXXX, XXXXXXX,
-      XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD, XXXXXXX, XXXXXXX,
+      RGB_LAYERS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD, XXXXXXX, XXXXXXX,
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
     ),
 };
 
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
-    [BASE] =   { 
-        ENCODER_CCW_CW(KC_A, KC_B), 
-        ENCODER_CCW_CW(KC_C, KC_D), 
-        ENCODER_CCW_CW(KC_E, KC_F), 
+    [BASE] =   {
+        ENCODER_CCW_CW(KC_A, KC_B),
+        ENCODER_CCW_CW(KC_C, KC_D),
+        ENCODER_CCW_CW(KC_E, KC_F),
         ENCODER_CCW_CW(KC_G, KC_H)
         },
-    [LIGHT] = { 
+    [LIGHT] = {
         ENCODER_CCW_CW(RGB_SPI, RGB_SPD),
-        ENCODER_CCW_CW(RGB_VAI, RGB_VAD), 
-        ENCODER_CCW_CW(RGB_SAI, RGB_SAD), 
+        ENCODER_CCW_CW(RGB_VAI, RGB_VAD),
+        ENCODER_CCW_CW(RGB_SAI, RGB_SAD),
         ENCODER_CCW_CW(RGB_HUI, RGB_HUD)
         }
 };
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    process_record_addedkeycodes(keycode, record);
-    return true;
-}
-

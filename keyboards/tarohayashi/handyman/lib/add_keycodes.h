@@ -27,7 +27,7 @@ enum TH_keycodes{
     SEARCH,
     IPADHOME,
     IPADDOCK,
-    RGB_LAYERS,
+    RGB_LAYERS
 };
 
 bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record);

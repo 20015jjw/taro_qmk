@@ -3,4 +3,4 @@
 
 #pragma once
 
-#define OLED_FONT_H "keyboards/tarohayashi/co2monitor/glcdfont.c"
+#define OLED_FONT_H "./lib/glcdfont.c"

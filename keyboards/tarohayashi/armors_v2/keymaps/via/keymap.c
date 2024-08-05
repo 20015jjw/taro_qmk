@@ -12,9 +12,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_6, KC_7, KC_8, KC_9, KC_0, KC_LSFT
     )
 };
-
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    process_record_addedkeycodes(keycode, record);
-    return true;
-}

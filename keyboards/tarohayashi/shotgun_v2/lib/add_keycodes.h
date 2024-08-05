@@ -26,7 +26,8 @@ enum TH_keycodes{
     PREVAPP,
     SEARCH,
     IPADHOME,
-    IPADDOCK
+    IPADDOCK,
+    RGB_LAYERS
 };
 
 bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record);
