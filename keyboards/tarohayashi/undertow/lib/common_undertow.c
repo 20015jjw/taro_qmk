@@ -5,57 +5,37 @@
 #include "analog.h"
 #include "math.h"
 #include "os_detection.h"
+#include "joystick.h"
 #include "lib/add_keycodes.h"
 #include "lib/add_oled.h"
 
+joystick_config_t joystick_axes[JOYSTICK_AXIS_COUNT] = {
+    JOYSTICK_AXIS_VIRTUAL,
+    JOYSTICK_AXIS_VIRTUAL
+};
+
 /* ポインティングデバイス用変数 */
 ut_config_t ut_config;         // eeprom保存用
-bool force_scrolling;          // 一時的モード変更用
-bool force_cursoring; 
-bool force_key_input;
-bool slow_mode;      
+bool force_scrolling, force_cursoring, force_key_input, force_gaming, slow_mode;          // 一時的モード変更用
 uint8_t joystick_attached;     // ジョイスティックの有無
-bool joystick_initialized;     // ジョイスティックの有無
-float scroll_accumulated_h;  // スクロール端数保存用
-float scroll_accumulated_v;
-int16_t gp28_newt;              // ジョイスティックの初期値
-int16_t gp29_newt; 
+bool joystick_initialized;     float scroll_accumulated_h, scroll_accumulated_v;  // スクロール端数保存用
+int16_t gp29_newt, gp28_newt;              // ジョイスティックの初期値
+int16_t gp29_max, gp28_max, gp29_min, gp28_min; // ジョイスティックの最大値、最小値
+uint16_t joystick_offset_min, joystick_offset_max; // ジョイスティックの有無ョイスティックの小さい値、大きい値を無視する範囲
 
+bool rgblayers;
 
-// 仮想十字キー設定用
-keypos_t key_up_0;
-keypos_t key_down_0;
-keypos_t key_left_0;
-keypos_t key_right_0;
-keypos_t key_up_1;
-keypos_t key_down_1;
-keypos_t key_left_1;
-keypos_t key_right_1;
-bool pressed_up;
-bool pressed_down;
-bool pressed_left;
-bool pressed_right;
+// 仮想十字キー設定用]
+keypos_t key_up_0, key_down_0, key_left_0, key_right_0, key_up_1, key_down_1, key_left_1, key_right_1;
+bool pressed_up, pressed_down, pressed_left, pressed_right;
 int8_t layer;
-int16_t keycode_up_0;
-int16_t keycode_down_0;
-int16_t keycode_left_0;
-int16_t keycode_right_0;
-int16_t keycode_up_1;
-int16_t keycode_down_1;
-int16_t keycode_left_1;
-int16_t keycode_right_1;
-int16_t keycode_up_js;
-int16_t keycode_down_js;
-int16_t keycode_left_js;
-int16_t keycode_right_js;
-int16_t key_timer_0;
-int16_t key_timer_1;
+int16_t keycode_up_0, keycode_down_0, keycode_left_0, keycode_right_0, keycode_up_1, keycode_down_1, keycode_left_1, keycode_right_1;
+int16_t keycode_up_js, keycode_down_js, keycode_left_js, keycode_right_js;
+int16_t key_timer_0, key_timer_1;
 
 // 斜め入力防止用
 bool dpad_exclusion;
-uint8_t dpad_pressed_0;
-uint8_t dpad_pressed_1;
-
+uint8_t dpad_pressed_0, dpad_pressed_1;
 
 /* eeprom */
 // 初期化
@@ -89,7 +69,7 @@ bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record) {
             return true;
         default:
             return false;
-    }   
+    }
 
     return  is_mouse_record_user(keycode, record);
 }
@@ -120,7 +100,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
                 if(!joystick_initialized){
                     joystick_attached = 0;
                     ut_config.js_side = 0;
-                    eeconfig_update_kb(ut_config.raw);  
+                    eeconfig_update_kb(ut_config.raw);
                 }
         }
     }
@@ -175,13 +155,20 @@ void matrix_init_kb(void) {
     force_scrolling = false;
     force_cursoring = false;
     force_key_input = false;
+    force_gaming = false;
     pressed_up = false;
     pressed_down = false;
     pressed_left = false;
     pressed_right = false;
     slow_mode = false;
-    gp28_newt = analogReadPin(GP28);
     gp29_newt = analogReadPin(GP29);
+    gp28_newt = analogReadPin(GP28);
+    gp29_max = gp29_newt;
+    gp28_max = gp28_newt;
+    gp29_min = gp29_newt;
+    gp28_min = gp28_newt;
+    joystick_offset_min = JOYSTICK_OFFSET_MIN_DEFAULT;
+    joystick_offset_max = JOYSTICK_OFFSET_MAX_DEFAULT;
     if(gp28_newt < NO_JOYSTICK_VAL ||  gp29_newt < NO_JOYSTICK_VAL ){
         joystick_attached = 2;
     }else{
@@ -190,7 +177,8 @@ void matrix_init_kb(void) {
     joystick_initialized = false;
     key_timer_0 = timer_read();
     key_timer_1 = timer_read();
-    dpad_exclusion = true;
+    dpad_exclusion = DPAD_EX_DEFAULT;
+    rgblayers = RGB_LAYER_DEFAULT;
 
     matrix_init_user();
 }
@@ -213,6 +201,7 @@ void pointing_device_init_kb(void){
 
     pointing_device_init_user();
 }
+
 // 実タスク
 #define constrain_hid(amt) ((amt) < -127 ? -127 : ((amt) > 127 ? 127 : (amt)))
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
@@ -232,6 +221,8 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         cur_mode = SCROLL_MODE;
     }else if(force_key_input){
         cur_mode = KEY_INPUT;
+    }else if(force_gaming){
+        cur_mode = GAME_MODE;
     }
     // スクロール処理
     if(cur_mode == SCROLL_MODE){
@@ -256,7 +247,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         keycode_up_0 = keymap_key_to_keycode(layer, key_up_0);
         keycode_left_0 = keymap_key_to_keycode(layer, key_left_0);
         keycode_right_0 = keymap_key_to_keycode(layer, key_right_0);
-        keycode_down_0 = keymap_key_to_keycode(layer, key_down_0); 
+        keycode_down_0 = keymap_key_to_keycode(layer, key_down_0);
         // 斜め成分を消す
         if (abs(x_rev_0) > abs(y_rev_0)) {
             y_rev_0 = 0.0;
@@ -278,8 +269,11 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         }
         x_rev_0 = 0.0;
         y_rev_0 = 0.0;
+    }else if(cur_mode == GAME_MODE){
+        x_rev_0 = 0.0;
+        y_rev_0 = 0.0;
     }
-    
+
     /* SIDE1 */
     // 数値取得、角度、反転処理
     pmw33xx_report_t report = pmw33xx_read_burst(1);
@@ -297,6 +291,8 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         cur_mode = SCROLL_MODE;
     }else if(force_key_input){
         cur_mode = KEY_INPUT;
+    }else if(force_gaming){
+        cur_mode = GAME_MODE;
     }
     // スクロール処理
     if(cur_mode == SCROLL_MODE){
@@ -321,7 +317,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         keycode_up_1 = keymap_key_to_keycode(layer, key_up_1);
         keycode_left_1 = keymap_key_to_keycode(layer, key_left_1);
         keycode_right_1 = keymap_key_to_keycode(layer, key_right_1);
-        keycode_down_1 = keymap_key_to_keycode(layer, key_down_1); 
+        keycode_down_1 = keymap_key_to_keycode(layer, key_down_1);
         // 斜め成分を消す
         if (abs(x_rev_1) > abs(y_rev_1)) {
             y_rev_1 = 0.0;
@@ -343,9 +339,12 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         }
         x_rev_1 = 0.0;
         y_rev_1 = 0.0;
+    }else if(cur_mode == GAME_MODE){
+        x_rev_1 = 0.0;
+        y_rev_1 = 0.0;
     }
 
-    /* JOYSTICK */        
+    /* JOYSTICK */
     double x_rev_js = 0.0;
     double y_rev_js = 0.0;
     double h_rev_js = 0.0;
@@ -361,7 +360,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
             keycode_up_js = keymap_key_to_keycode(layer, key_up_0);
             keycode_left_js = keymap_key_to_keycode(layer, key_left_0);
             keycode_right_js = keymap_key_to_keycode(layer, key_right_0);
-            keycode_down_js = keymap_key_to_keycode(layer, key_down_0); 
+            keycode_down_js = keymap_key_to_keycode(layer, key_down_0);
             amp_temp = 16.0 + (double)ut_config.spd_0 * 3.0;
             inv_js = ut_config.inv_0;
         }else{
@@ -371,7 +370,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
             keycode_up_js = keymap_key_to_keycode(layer, key_up_1);
             keycode_left_js = keymap_key_to_keycode(layer, key_left_1);
             keycode_right_js = keymap_key_to_keycode(layer, key_right_1);
-            keycode_down_js = keymap_key_to_keycode(layer, key_down_1); 
+            keycode_down_js = keymap_key_to_keycode(layer, key_down_1);
             amp_temp = 16.0 + (double)ut_config.spd_1 * 3.0;
             inv_js = ut_config.inv_1;
         }
@@ -381,6 +380,8 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
             cur_mode = SCROLL_MODE;
         }else if(force_key_input){
             cur_mode = KEY_INPUT;
+        }else if(force_gaming){
+            cur_mode = GAME_MODE;
         }
         // amprifier値決定
         if(slow_mode){
@@ -394,17 +395,33 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
             amp_temp = amp_temp / 10;
         }
         // 数値の取得と補正
-        int16_t gp29val = analogReadPin(GP29) - gp29_newt;
-        int16_t gp28val = analogReadPin(GP28) - gp28_newt;
+        int16_t gp29_val = analogReadPin(GP29);
+        int16_t gp28_val = analogReadPin(GP28);
+        int16_t temp_x_val = gp29_val - gp29_newt;
+        int16_t temp_y_val = gp28_val - gp28_newt;
 
-        if(abs(gp29val)<JOYSTICK_MOVE_OFFSET){
-            gp29val = 0;
+        // 最大値最小値の更新
+        if(gp29_val > gp29_max){
+            gp29_max = gp29_val;
+        }else if(gp29_val < gp29_min){
+            gp29_min = gp29_val;
         }
-        if(abs(gp28val)<JOYSTICK_MOVE_OFFSET){
-            gp28val = 0;
+
+        if(gp28_val > gp28_max){
+            gp28_max = gp28_val;
+        }else if(gp28_val < gp28_min){
+            gp28_min = gp28_val;
         }
-        double x_val_js = ( (double)gp29val / JOYSTICK_DIVISOR ) * amp_temp;
-        double y_val_js = ( (double)gp28val / JOYSTICK_DIVISOR ) * amp_temp;
+
+        if(abs(gp29_val)<joystick_offset_min){
+            gp29_val = 0;
+        }
+        if(abs(gp28_val)<joystick_offset_min){
+            gp28_val = 0;
+        }
+
+        double x_val_js = ( (double)temp_x_val / JOYSTICK_DIVISOR ) * amp_temp;
+        double y_val_js = ( (double)temp_y_val / JOYSTICK_DIVISOR ) * amp_temp;
         // 角度補正
         x_rev_js =  + x_val_js * cos(rad) - y_val_js * sin(rad);
         y_rev_js =  + x_val_js * sin(rad) + y_val_js * cos(rad);
@@ -464,6 +481,91 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
             }
             x_rev_js = 0.0;
             y_rev_js = 0.0;
+        }else if(cur_mode == GAME_MODE){
+            x_rev_js = 0.0;
+            y_rev_js = 0.0;
+
+            // セットアップ
+            double x_val_gp = (double)(gp29_val - gp29_newt);
+            double y_val_gp = (double)(gp28_val - gp28_newt);
+            // xが正 = 右の場合
+            if(gp29_val > gp29_newt){
+                // 値が小さければ0
+                if(gp29_val < (double)(gp29_newt + joystick_offset_min)){
+                    x_val_gp = 0.0;
+                // 値が大きければ減らす
+                }else if(gp29_val > (double)(gp29_max - joystick_offset_max)){
+                    x_val_gp = x_val_gp - joystick_offset_max;
+                }
+                // 正規化
+                double span = (double)(gp29_max - joystick_offset_max - joystick_offset_min - gp29_newt);
+                if(span > 0){
+                    x_val_gp = x_val_gp / span * 511.0;
+                }else{
+                    x_val_gp = 0.0;
+                }
+            // xが負 = 左の場合
+            }else{
+                // 値が小さければ0
+                if(gp29_val > (double)(gp29_newt - joystick_offset_min)){
+                    x_val_gp = 0.0;
+                // 値が大きければ減らす
+                }else if(gp29_val < (double)(gp29_min + joystick_offset_max)){
+                    x_val_gp = x_val_gp + joystick_offset_max;
+                }
+                // 正規化
+                double span =  (double)(gp29_newt - joystick_offset_max - joystick_offset_min - gp29_min);
+                if (span > 0){
+                    x_val_gp = x_val_gp / span * 511.0;
+                }else{
+                    x_val_gp = 0.0;
+                }
+            }
+            // yが正 = 上の場合
+            if(gp28_val > gp28_newt){
+                // 値が小さければ0
+                if(gp28_val < (double)(gp28_newt + joystick_offset_min)){
+                    y_val_gp = 0.0;
+                // 値が大きければ減らす
+                }else if(gp28_val > (double)(gp28_max - joystick_offset_max)){
+                    y_val_gp = y_val_gp - joystick_offset_max;
+                }
+                // 正規化
+                double span = (double)(gp28_max - joystick_offset_max - joystick_offset_min - gp28_newt);
+                if(span > 0){
+                    y_val_gp = y_val_gp / span * 511.0;
+                }else{
+                    y_val_gp = 0.0;
+                }
+            // yが正 = 下の場合
+            }else{
+                // 値が小さければ0
+                if(gp28_val > (double)(gp28_newt - joystick_offset_min)){
+                    y_val_gp = 0.0;
+                // 値が大きければ減らす
+                }else if(gp28_val < (double)(gp28_min + joystick_offset_max)){
+                    y_val_gp = y_val_gp + joystick_offset_max;
+                }
+                // 正規化
+                double span =  (double)(gp28_newt - joystick_offset_max - joystick_offset_min - gp28_min);
+                if (span > 0){
+                    y_val_gp = y_val_gp / span * 511.0;
+                }else{
+                    y_val_gp = 0.0;
+                }
+            }
+
+            // 角度の修正
+            double x_rev_gp =  + x_val_gp * cos(rad) - y_val_gp * sin(rad);
+            double y_rev_gp =  + x_val_gp * sin(rad) + y_val_gp * cos(rad);
+
+            // x軸反転処理f
+            if(inv_js){
+                    x_rev_gp = -1 * x_rev_gp;
+            }
+
+            joystick_set_axis(0, (int16_t)x_rev_gp);
+            joystick_set_axis(1, (int16_t)y_rev_gp);
         }
     }
 
@@ -477,7 +579,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     mouse_report.v = (int8_t)scroll_accumulated_v;
     scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
     scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
-    
+
     return pointing_device_task_user(mouse_report);
 }
 
@@ -513,23 +615,54 @@ void clear_keyinput(void){
     scroll_accumulated_h = 0;
 }
 /* インターフェース */
+// ジョイスティックの初期化
+void reset_joystick(void){
+    gp29_newt = analogReadPin(GP29);
+    gp28_newt = analogReadPin(GP28);
+    gp29_min = gp29_newt;
+    gp28_min = gp28_newt;
+    gp29_max = gp29_newt;
+    gp28_max = gp28_newt;
+    joystick_offset_min = JOYSTICK_OFFSET_MIN_DEFAULT;
+    joystick_offset_max = JOYSTICK_OFFSET_MAX_DEFAULT;
+}
 // ジョイスティックの有無
 uint8_t get_joystick_attached(void){ return joystick_attached; }
+uint16_t get_joystick_offset_min(void){
+    return joystick_offset_min;
+}
+uint16_t get_joystick_offset_max(void){
+    return joystick_offset_max;
+}
+void set_joystick_offset_min(uint16_t min){
+    joystick_offset_min = min;
+}
+void set_joystick_offset_max(uint16_t max){
+    joystick_offset_max = max;
+}
 // モード変更
 void cycle_mode(bool side){
     if(side){
-        ut_config.pd_mode_1 = (ut_config.pd_mode_1 + 1) % 3;
+        if(joystick_attached && (ut_config.js_side == side)){
+            ut_config.pd_mode_1 = (ut_config.pd_mode_1 + 1) % 4;
+        }else{
+            ut_config.pd_mode_1 = (ut_config.pd_mode_1 + 1) % 3;
+        }
         eeconfig_update_kb(ut_config.raw);
         clear_keyinput();
     }else{
-        ut_config.pd_mode_0 = (ut_config.pd_mode_0 + 1) % 3;
+        if(joystick_attached && (ut_config.js_side == side)){
+            ut_config.pd_mode_0 = (ut_config.pd_mode_0 + 1) % 4;
+        }else{
+            ut_config.pd_mode_0 = (ut_config.pd_mode_0 + 1) % 3;
+        }
         eeconfig_update_kb(ut_config.raw);
         clear_keyinput();
     }
 }
 // 一時的モード変更
 void is_scroll_mode(bool is_force_scrolling){
-    force_scrolling = is_force_scrolling; 
+    force_scrolling = is_force_scrolling;
     clear_keyinput();
 }
 void is_cursor_mode(bool is_force_cursoring){
@@ -551,9 +684,20 @@ void is_slow_mode(bool is_slow_mode){
     }
     clear_keyinput();
 }
+void is_game_mode(bool is_force_gaming){
+    force_gaming = is_force_gaming;
+    clear_keyinput();
+}
 bool get_dpad_exclusion(void){
     return dpad_exclusion;
 }
 void toggle_dpad_exclusion(void){
     dpad_exclusion = !dpad_exclusion;
+}
+bool get_rgblayers(void){
+    return rgblayers;
+}
+
+void toggle_rgblayers(void){
+    rgblayers = !rgblayers;
 }

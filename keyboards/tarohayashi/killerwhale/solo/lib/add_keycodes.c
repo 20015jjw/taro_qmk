@@ -33,7 +33,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
                 if (detected_host_os() == OS_MACOS || detected_host_os() == OS_IOS){
                     register_code(KC_LGUI);
                     tap_code(KC_Z);
-                    unregister_code(KC_LGUI); 
+                    unregister_code(KC_LGUI);
                 } else {
                     register_code(KC_LCTL);
                     tap_code(KC_Z);
@@ -364,7 +364,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_scroll_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_ESC);  
+                    tap_code(KC_ESC);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -379,7 +379,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_scroll_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_TAB);  
+                    tap_code(KC_TAB);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -394,9 +394,9 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_scroll_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_LNG1);  
+                    tap_code(KC_LNG1);
                 }
-                oled_tempch(record->event.pressed, keycode);           
+                oled_tempch(record->event.pressed, keycode);
             }
             return false;
             break;
@@ -409,7 +409,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_scroll_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_LNG2);  
+                    tap_code(KC_LNG2);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -430,7 +430,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_slow_mode(record->event.pressed);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_ESC);  
+                    tap_code(KC_ESC);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -445,7 +445,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_slow_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_TAB);  
+                    tap_code(KC_TAB);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -456,11 +456,11 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 startup_timer = timer_read();
                 is_slow_mode(true);
-                oled_tempch(record->event.pressed, keycode);    
+                oled_tempch(record->event.pressed, keycode);
             } else {
                 is_slow_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_LNG1);  
+                    tap_code(KC_LNG1);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -475,7 +475,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             } else {
                 is_slow_mode(false);
                 if(timer_elapsed(startup_timer) < TERM_TEMP){
-                    tap_code(KC_LNG2);  
+                    tap_code(KC_LNG2);
                 }
                 oled_tempch(record->event.pressed, keycode);
             }
@@ -537,7 +537,7 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
         case QK_USER_14:
             if (record->event.pressed) {
                 kw_config.dpad_exclusion = !kw_config.dpad_exclusion;
-                eeconfig_update_kb(kw_config.raw); 
+                eeconfig_update_kb(kw_config.raw);
                 oled_interrupt(keycode);
             }
             return false;
@@ -545,13 +545,92 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
         // RGBレイヤーオンオフ
         case QK_USER_15:
             if (record->event.pressed) {
-                kw_config.rgb_layer = !kw_config.rgb_layer;
-                eeconfig_update_kb(kw_config.raw); 
+                kw_config.rgb_layers = !kw_config.rgb_layers;
+                eeconfig_update_kb(kw_config.raw);
                 oled_interrupt(keycode);
             }
             return false;
             break;
-    }
+        // ジョイスティックの値を初期化
+        case QK_USER_16:
+                if (record->event.pressed) {
+                    reset_joystick();
+                    oled_interrupt(keycode);
+                }
+                return false;
+                break;
+        // ゲームパッド上
+        case QK_USER_17:
+                if (record->event.pressed) {
+                    joystick_set_axis(1, -511);
+                }else{
+                    joystick_set_axis(1, 0);
+                }
+                return false;
+                break;
+        // ゲームパッド下
+        case QK_USER_18:
+                if (record->event.pressed) {
+                    joystick_set_axis(1, 511);
+                }else{
+                    joystick_set_axis(1, 0);
+                }
+                return false;
+                break;
+        // ゲームパッド左
+        case QK_USER_19:
+                if (record->event.pressed) {
+                    joystick_set_axis(0, -511);
+                }else{
+                    joystick_set_axis(0, 0);
+                }
+                return false;
+                break;
+        // ゲームパッド右
+        case QK_USER_20:
+                if (record->event.pressed) {
+                    joystick_set_axis(0, 511);
+                }else{
+                    joystick_set_axis(0, 0);
+                }
+                return false;
+                break;
+        case QK_USER_21:
+                if(get_joystick_attached()){
+                    is_game_mode(record->event.pressed);
+                    oled_tempch(record->event.pressed, keycode);
+                }
+                return false;
+                break;
+        case QK_USER_22:
+                if(get_joystick_offset_min() > 4){
+                    set_joystick_offset_min(get_joystick_offset_min() - 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+        case QK_USER_23:
+                if(get_joystick_offset_min() < 196){
+                    set_joystick_offset_min(get_joystick_offset_min() + 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+        case QK_USER_24:
+                if(get_joystick_offset_max() > 4){
+                    set_joystick_offset_max(get_joystick_offset_max() - 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+        case QK_USER_25:
+                if(get_joystick_offset_max() < 196){
+                    set_joystick_offset_max(get_joystick_offset_max() + 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+}
     if (record->event.pressed) {
         oled_interrupt(keycode);
     }

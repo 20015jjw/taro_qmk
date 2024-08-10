@@ -7,19 +7,16 @@
 #include "lib/glcdfont.c"
 #include "lib/add_keycodes.h"
 
-uint8_t pre_layer;
-uint8_t cur_layer;
+uint8_t pre_layer, cur_layer;
 bool interrupted;
-uint16_t interrupted_time;
-uint16_t interrupt_type;
+uint16_t interrupted_time, tempch_time;
+uint16_t interrupt_type, tempch_type;
 bool tempch;
-uint16_t tempch_time;
-uint16_t tempch_type;
 
 // 初期化
 void oled_init_addedoled(void){
     pre_layer = 0;
-    cur_layer = 0;  
+    cur_layer = 0;
     interrupted = false;
     interrupted_time = 0;
     interrupt_type = 0;
@@ -27,7 +24,6 @@ void oled_init_addedoled(void){
     tempch_time = 0;
     tempch_type = 0;
 }
-
 
 // OLED表示
 bool oled_task_addedoled(void) {
@@ -152,6 +148,8 @@ bool oled_task_addedoled(void) {
                             oled_write_P(PSTR("CURSOR MODE          "), false);
                         }else if(kw_config.pd_mode == KEY_INPUT){
                             oled_write_P(PSTR("KEY INPUT MODE       "), false);
+                        }else if(kw_config.pd_mode == GAME_MODE){
+                            oled_write_P(PSTR("GAME MODE            "), false);
                         }
                         break;
                     case AUTO_MOUSE:
@@ -176,11 +174,26 @@ bool oled_task_addedoled(void) {
                         }
                         break;
                     case QK_USER_15:
-                        if(kw_config.rgb_layer){
+                        if(kw_config.rgb_layers){
                             oled_write_P(PSTR("RGBLIGHT LAYER ON   "), false);
                         }else{
                             oled_write_P(PSTR("RGBLIGHT LAYER OFF  "), false);
                         }
+                        break;
+                    case QK_USER_16:
+                            oled_write_P(PSTR("JOYSTICK INITIALIZED "), false);
+                        break;
+                    case QK_USER_22:
+                    case QK_USER_23:
+                            oled_write_P(PSTR("OFFSET MIN: "), false);
+                            oled_write(get_u16_str(get_joystick_offset_min(), ' '), false);
+                            oled_write_P(PSTR("   "), false);
+                        break;
+                    case QK_USER_24:
+                    case QK_USER_25:
+                            oled_write_P(PSTR("OFFSET MAX: "), false);
+                            oled_write(get_u16_str(get_joystick_offset_max(), ' '), false);
+                            oled_write_P(PSTR("   "), false);
                         break;
                 }
             }else{
@@ -213,6 +226,9 @@ bool oled_task_addedoled(void) {
                 case QK_USER_13:
                     oled_write_P(PSTR("KEY INPUT MODE       "), false);
                     break;
+                case QK_USER_21:
+                    oled_write_P(PSTR("GAME MODE            "), false);
+                    break;
             }
         // レイヤー表示処理
         }else if(kw_config.oled_mode == SHOW_LAYER){
@@ -234,6 +250,8 @@ bool oled_task_addedoled(void) {
                 oled_write_P(PSTR("KEY INPUT"), false);
             } else if (kw_config.pd_mode == CURSOR_MODE){
                 oled_write_P(PSTR("CURSOR   "), false);
+            } else if (kw_config.pd_mode == GAME_MODE){
+                oled_write_P(PSTR("GAMEPAD  "), false);
             } else if (kw_config.pd_mode == SCROLL_MODE){
                 oled_write_P(PSTR("SCROLL"), false);
                 if(kw_config.inv_sc){
@@ -285,7 +303,7 @@ bool oled_task_addedoled(void) {
                 oled_write_P(PSTR("        "), false);
             }
 
-            cur_layer = get_highest_layer(layer_state); 
+            cur_layer = get_highest_layer(layer_state);
 
             if(kw_config.dpad_exclusion){
                 oled_write_P(PSTR("     DPAD FIX"), false);

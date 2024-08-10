@@ -2,7 +2,7 @@
   "keyboard_name": "On the 17",
   "manufacturer": "hayashi",
   "maintainer": "hayashi",
-  "url": "",
+  "url": "https://github.com/Taro-Hayashi/Onthe17",
   "usb": {
     "vid": "0x8884",
     "pid": "0x0901",

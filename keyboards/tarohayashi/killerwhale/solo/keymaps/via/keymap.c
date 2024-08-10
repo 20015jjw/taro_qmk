@@ -7,11 +7,11 @@
 // レイヤー名
 enum layer_number {
     // 左手用
-    LEFT_BASE = 0, LEFT_LOWER,  LEFT_UPPER,            
+    LEFT_BASE = 0, LEFT_LOWER,  LEFT_UPPER,
     // 右手用
     RIGHT_BASE, RIGHT_LOWER, RIGHT_UPPER,
     // 自動マウスレイヤー切り替えや設定用のレイヤー
-    UTIL, MOUSE , BALL_SETTINGS, LIGHT_SETTINGS    
+    UTIL, MOUSE , BALL_SETTINGS, LIGHT_SETTINGS
 };
 
 // キーマップ
@@ -24,11 +24,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                  LSFT_T(KC_Z), KC_X,                 KC_C, KC_V,                    KC_B,
                        MOD_SCRL,
         // 側面スイッチ
-        KC_LNG2, KC_SPACE,                             
+        KC_LNG2, KC_SPACE,
         // 十字キーorジョイスティック                // ジョイスティックスイッチ
-        KC_W, KC_S, KC_A, KC_D,                  L_CHMOD,                 
+        XXXXXXX, XXXXXXX, XXXXXXX,XXXXXXX,                  L_CHMOD,
         KC_MS_BTN2, KC_MS_BTN1,                  MO(RIGHT_BASE)
-    ),    
+    ),
     [RIGHT_BASE] = LAYOUT(
         KC_BSPC,    KC_0,       KC_9,            KC_8,            LT(BALL_SETTINGS, KC_7), LT(LIGHT_SETTINGS, KC_6),
         KC_ENT,     KC_P,       KC_O,            KC_I,            KC_U,                 KC_Y,
@@ -37,7 +37,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 MOD_SCRL,
         KC_SPACE, KC_LNG1,
         KC_LEFT, KC_RIGHT, KC_DOWN, KC_UP,        L_CHMOD,
-        KC_MS_BTN2, KC_MS_BTN1,                  _______      
+        KC_MS_BTN2, KC_MS_BTN1,                  _______
     ),
     [MOUSE] = LAYOUT(
         _______, _______, _______, _______, _______,    _______,
@@ -72,29 +72,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
-    [LEFT_BASE] =   { 
+    [LEFT_BASE] =   {
         ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
-        ENCODER_CCW_CW(REDO, UNDO), 
-        ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
-        ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
-        ENCODER_CCW_CW(XXXXXXX, XXXXXXX)
-    },
-    [RIGHT_BASE] =   { 
-        ENCODER_CCW_CW(KC_DEL, KC_BSPC), 
-        ENCODER_CCW_CW(KC_UP, KC_DOWN), 
+        ENCODER_CCW_CW(REDO, UNDO),
         ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
         ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
         ENCODER_CCW_CW(XXXXXXX, XXXXXXX)
     },
-    [LIGHT_SETTINGS] = { 
-        ENCODER_CCW_CW(RGB_SPI, RGB_SPD), 
-        ENCODER_CCW_CW(RGB_VAI, RGB_VAD), 
-        ENCODER_CCW_CW(RGB_SAI, RGB_SAD), 
+    [RIGHT_BASE] =   {
+        ENCODER_CCW_CW(KC_DEL, KC_BSPC),
+        ENCODER_CCW_CW(KC_UP, KC_DOWN),
+        ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
+        ENCODER_CCW_CW(KC_WH_U, KC_WH_D),
+        ENCODER_CCW_CW(XXXXXXX, XXXXXXX)
+    },
+    [LIGHT_SETTINGS] = {
+        ENCODER_CCW_CW(RGB_SPI, RGB_SPD),
+        ENCODER_CCW_CW(RGB_VAI, RGB_VAD),
+        ENCODER_CCW_CW(RGB_SAI, RGB_SAD),
         ENCODER_CCW_CW(RGB_HUI, RGB_HUD),
         ENCODER_CCW_CW(XXXXXXX, XXXXXXX)
     }
 };
-
-
-
-

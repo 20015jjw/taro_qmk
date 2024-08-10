@@ -172,6 +172,92 @@ bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record) {
             oled_tempch(record->event.pressed, keycode);
             return false;
             break;
+        case RGB_LAYERS:
+            if (record->event.pressed) {
+                toggle_rgblayers();
+                oled_interrupt(keycode);
+            }
+            return false;
+            break;
+        // ジョイスティックの値を初期化
+        case JS_RESET:
+                if (record->event.pressed) {
+                    reset_joystick();
+                    oled_interrupt(keycode);
+                }
+                return false;
+                break;
+        // ゲームパッド上
+        case GP_UP:
+                if (record->event.pressed) {
+                    joystick_set_axis(1, -511);
+                }else{
+                    joystick_set_axis(1, 0);
+                }
+                return false;
+                break;
+        // ゲームパッド下
+        case GP_DOWN:
+                if (record->event.pressed) {
+                    joystick_set_axis(1, 511);
+                }else{
+                    joystick_set_axis(1, 0);
+                }
+                return false;
+                break;
+        // ゲームパッド左
+        case GP_LEFT:
+                if (record->event.pressed) {
+                    joystick_set_axis(0, -511);
+                }else{
+                    joystick_set_axis(0, 0);
+                }
+                return false;
+                break;
+        // ゲームパッド右
+        case GP_RIGHT:
+                if (record->event.pressed) {
+                    joystick_set_axis(0, 511);
+                }else{
+                    joystick_set_axis(0, 0);
+                }
+                return false;
+                break;
+        case MOD_GAME:
+                if(get_joystick_attached()){
+                    is_game_mode(record->event.pressed);
+                    oled_tempch(record->event.pressed, keycode);
+                }
+                return false;
+                break;
+        case OFFSET_MIN_D:
+                if(get_joystick_offset_min() > 4){
+                    set_joystick_offset_min(get_joystick_offset_min() - 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+        case OFFSET_MIN_I:
+                if(get_joystick_offset_min() < 196){
+                    set_joystick_offset_min(get_joystick_offset_min() + 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+        case OFFSET_MAX_D:
+                if(get_joystick_offset_max() > 4){
+                    set_joystick_offset_max(get_joystick_offset_max() - 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
+        case OFFSET_MAX_I:
+                if(get_joystick_offset_max() < 196){
+                    set_joystick_offset_max(get_joystick_offset_max() + 5);
+                }
+                oled_interrupt(keycode);
+                return false;
+                break;
     }
     if (record->event.pressed) {
         oled_interrupt(keycode);

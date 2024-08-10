@@ -75,11 +75,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
 /* マトリクス走査 */
 // 初期化
 void matrix_init_kb(void) {
-    key_left.row = 1;
+    key_left.row = 0;
     key_left.col = 15;
     key_up.row = 0;
     key_up.col = 16;
-    key_down.row = 0;
+    key_down.row = 1;
     key_down.col = 15;
     key_right.row = 1;
     key_right.col = 16;

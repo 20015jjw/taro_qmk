@@ -8,20 +8,17 @@
 #include "lib/add_keycodes.h"
 #include "analog.h"
 
-uint8_t pre_layer;
-uint8_t cur_layer;
+uint8_t pre_layer, cur_layer;
 bool interrupted;
-uint16_t interrupted_time;
-uint16_t interrupt_type;
+uint16_t interrupted_time, interrupt_type;
 bool tempch;
 uint16_t tempch_time;
 uint16_t tempch_type;
 
-
 // 初期化
 void oled_init_addedoled(void){
     pre_layer = 0;
-    cur_layer = 0;  
+    cur_layer = 0;
     interrupted = false;
     interrupted_time = 0;
     interrupt_type = 0;
@@ -29,7 +26,6 @@ void oled_init_addedoled(void){
     tempch_time = 0;
     tempch_type = 0;
 }
-
 
 bool oled_task_addedoled(void) {
     // 割り込み表示
@@ -115,6 +111,8 @@ bool oled_task_addedoled(void) {
                         oled_write_P(PSTR("CURSOR MODE SIDE0    "), false);
                     }else if(ut_config.pd_mode_0 == KEY_INPUT){
                         oled_write_P(PSTR("KEY INPUT MODE SIDE0 "), false);
+                    }else if(ut_config.pd_mode_0 == GAME_MODE){
+                        oled_write_P(PSTR("KEY INPUT MODE SIDE0 "), false);
                     }
                     break;
                 case CHMOD_1:
@@ -124,6 +122,8 @@ bool oled_task_addedoled(void) {
                         oled_write_P(PSTR("CURSOR MODE SIDE1    "), false);
                     }else if(ut_config.pd_mode_1 == KEY_INPUT){
                         oled_write_P(PSTR("KEY INPUT MODE SIDE1 "), false);
+                    }else if(ut_config.pd_mode_1 == GAME_MODE){
+                        oled_write_P(PSTR("KEY INPUT MODE SIDE0 "), false);
                     }
                     break;
                 case AUTO_MOUSE:
@@ -147,6 +147,28 @@ bool oled_task_addedoled(void) {
                         oled_write_P(PSTR("DPAD EXCLUSION OFF   "), false);
                     }
                     break;
+                case RGB_LAYERS:
+                    if(get_rgblayers()){
+                        oled_write_P(PSTR("RGBLIGHT LAYER ON   "), false);
+                    }else{
+                        oled_write_P(PSTR("RGBLIGHT LAYER OFF  "), false);
+                    }
+                    break;
+                case JS_RESET:
+                        oled_write_P(PSTR("JOYSTICK INITIALIZED "), false);
+                    break;
+                case OFFSET_MIN_D:
+                case OFFSET_MIN_I:
+                        oled_write_P(PSTR("OFFSET MIN: "), false);
+                        oled_write(get_u16_str(get_joystick_offset_min(), ' '), false);
+                        oled_write_P(PSTR("   "), false);
+                    break;
+                case OFFSET_MAX_D:
+                case OFFSET_MAX_I:
+                        oled_write_P(PSTR("OFFSET MAX: "), false);
+                        oled_write(get_u16_str(get_joystick_offset_max(), ' '), false);
+                        oled_write_P(PSTR("   "), false);
+                    break;
             }
         }else{
             interrupted = false;
@@ -167,6 +189,9 @@ bool oled_task_addedoled(void) {
             case MOD_KEY:
                 oled_write_P(PSTR("KEY INPUT MODE       "), false);
                 break;
+            case MOD_GAME:
+                oled_write_P(PSTR("GAME MODE            "), false);
+                break;
         }
     // レイヤー表示処理
     }else if(ut_config.oled_mode){
@@ -183,7 +208,7 @@ bool oled_task_addedoled(void) {
         }else{
             oled_write_P(PSTR(" 0:"), false);
             oled_write(get_u16_str(1000 + (uint16_t)ut_config.spd_0 * 250, ' '), false);
-        } 
+        }
         if(get_joystick_attached() == 1){
             oled_write_P(PSTR(" J:"), false);
             oled_write(get_u16_str(16 + (uint16_t)ut_config.spd_1 * 3, ' '), false);
@@ -208,7 +233,7 @@ bool oled_task_addedoled(void) {
         oled_write(get_u16_str((uint16_t)ut_config.angle_1 * 12, ' '), false);
 
         oled_set_cursor(0, 2);
-        oled_write_P(PSTR("AXIS"), false); 
+        oled_write_P(PSTR("AXIS"), false);
         if(get_joystick_attached() == 0){
             oled_write_P(PSTR(" J:"), false);
         }else{
@@ -241,6 +266,8 @@ bool oled_task_addedoled(void) {
             oled_write_P(PSTR("SCROL"), false);
         }else if(ut_config.pd_mode_0 == CURSOR_MODE){
             oled_write_P(PSTR("CURSR"), false);
+        }else if(ut_config.pd_mode_0 == GAME_MODE){
+            oled_write_P(PSTR(" GAME"), false);
         }else{
             oled_write_P(PSTR("  KEY"), false);
         }
@@ -253,9 +280,11 @@ bool oled_task_addedoled(void) {
             oled_write_P(PSTR("SCROL"), false);
         }else if(ut_config.pd_mode_1 == CURSOR_MODE){
             oled_write_P(PSTR("CURSR"), false);
+        }else if(ut_config.pd_mode_1 == GAME_MODE){
+            oled_write_P(PSTR(" GAME"), false);
         }else{
             oled_write_P(PSTR("  KEY"), false);
-        } 
+        }
     }
     // 修飾キー表示処理
     uint8_t mod_state = get_mods();

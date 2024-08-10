@@ -4,7 +4,7 @@
 #include "quantum.h"
 #include "lib/common_killerwhale.h"
 
-// レイヤーごとの発光場所、発光色の設定 
+// レイヤーごとの発光場所、発光色の設定
 const rgblight_segment_t PROGMEM base_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 0, HSV_YELLOW} );
 const rgblight_segment_t PROGMEM onoff_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 33, HSV_YELLOW} );
 const rgblight_segment_t PROGMEM offon_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 33, HSV_MAGENTA} );
@@ -35,15 +35,15 @@ void keyboard_post_init_kb(void) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    rgblight_set_layer_state(0, kw_config.rgb_layer && layer_state_cmp(state, 0));
-    rgblight_set_layer_state(1, kw_config.rgb_layer && layer_state_cmp(state, 1));
-    rgblight_set_layer_state(2, kw_config.rgb_layer && layer_state_cmp(state, 2));
-    rgblight_set_layer_state(3, kw_config.rgb_layer && layer_state_cmp(state, 3));
-    rgblight_set_layer_state(4, kw_config.rgb_layer && layer_state_cmp(state, 4));
-    rgblight_set_layer_state(5, kw_config.rgb_layer && layer_state_cmp(state, 5));
-    rgblight_set_layer_state(6, kw_config.rgb_layer && layer_state_cmp(state, 6));
-    rgblight_set_layer_state(7, kw_config.rgb_layer && layer_state_cmp(state, 7));
-    rgblight_set_layer_state(8, kw_config.rgb_layer && layer_state_cmp(state, 8));
-    rgblight_set_layer_state(9, kw_config.rgb_layer && layer_state_cmp(state, 9));
+    rgblight_set_layer_state(0, kw_config.rgb_layers && layer_state_cmp(state, 0));
+    rgblight_set_layer_state(1, kw_config.rgb_layers && layer_state_cmp(state, 1));
+    rgblight_set_layer_state(2, kw_config.rgb_layers && layer_state_cmp(state, 2));
+    rgblight_set_layer_state(3, kw_config.rgb_layers && layer_state_cmp(state, 3));
+    rgblight_set_layer_state(4, kw_config.rgb_layers && layer_state_cmp(state, 4));
+    rgblight_set_layer_state(5, kw_config.rgb_layers && layer_state_cmp(state, 5));
+    rgblight_set_layer_state(6, kw_config.rgb_layers && layer_state_cmp(state, 6));
+    rgblight_set_layer_state(7, kw_config.rgb_layers && layer_state_cmp(state, 7));
+    rgblight_set_layer_state(8, kw_config.rgb_layers && layer_state_cmp(state, 8));
+    rgblight_set_layer_state(9, kw_config.rgb_layers && layer_state_cmp(state, 9));
     return state;
 }

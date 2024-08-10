@@ -5,19 +5,20 @@
 #define KEY_INPUT 0
 #define CURSOR_MODE 1
 #define SCROLL_MODE 2
+#define GAME_MODE 3
 
 //////////////////////
 /*    ユーザー設定    */
 //////////////////////
 
-// 入力モードデフォルト 
+// 入力モードデフォルト
 // KEY_INPUT / CURSOR_MODE / SCROLL_MODE
-#define MODE_DEFAULT_LEFT CURSOR_MODE   
-#define MODE_DEFAULT_RIGHT CURSOR_MODE 
+#define MODE_DEFAULT_LEFT CURSOR_MODE
+#define MODE_DEFAULT_RIGHT CURSOR_MODE
 
 // CPI = 600 + spd * 300 / AMP = 16.0 + (double)spd * 3.0
 #define SPD_OPTION_MAX    7 // 固定: 最大値
-#define SPD_DEFAULT_LEFT  3 
+#define SPD_DEFAULT_LEFT  3
 #define SPD_DEFAULT_RIGHT 3
 
 // 角度 = angle * 12
@@ -43,9 +44,12 @@
 
 // ジョイスティク用定数
 #define NO_JOYSTICK_VAL 100         // JSの有無判定閾値
-#define KEY_OFFSET 7                // キー入力閾値
-#define TIMEOUT_KEY 80              // キー入力間隔
-#define JOYSTICK_MOVE_OFFSET 100    // ジョイスティック移動閾値
+#define KEY_OFFSET 5                // キー入力閾値
+#define TIMEOUT_KEY 50              // キー入力間隔
+
+#define JOYSTICK_OFFSET_MIN_DEFAULT 50 // ジョイスティックの小さい値を無視する範囲 最大200
+#define JOYSTICK_OFFSET_MAX_DEFAULT 0 // ジョイスティックの大きい値を無視する範囲 最大200
+
 #define SCROLL_DIVISOR 100.0        // スクロール用数値調整
 #define JOYSTICK_DIVISOR 40.0       // ジョイスティック用調整用
 
@@ -54,7 +58,7 @@
 #define INTERRUPT_TIME 600          // OLED割り込み時間
 
 // RGBレイヤーデフォルト
-#define RGB_LAYER_DEFAULT false
+#define RGB_LAYER_DEFAULT true
 
 // 一時的モード変更タップ判定ms
 #define TERM_TEMP 100
@@ -85,10 +89,14 @@
 #define SPLIT_HAND_PIN GP10
 #define SPLIT_HAND_PIN_LOW_IS_LEFT
 #define SPLIT_POINTING_ENABLE
+#define SPLIT_WATCHDOG_ENABLE
 #define POINTING_DEVICE_COMBINED
 #define SPLIT_LAYER_STATE_ENABLE
 #define SELECT_SOFT_SERIAL_SPEED 0
 #define POINTING_DEVICE_TASK_THROTTLE_MS 4
 // RGBLIGHT LAYERS
-#define RGBLIGHT_LAYERS
-#define RGBLIGHT_MAX_LAYERS 10
+#define RGBLIGHT_LAYERS_RETAIN_VAL
+
+// JOYSTICK
+#define JOYSTICK_AXIS_COUNT 2
+#define JOYSTICK_AXIS_RESOLUTION 10

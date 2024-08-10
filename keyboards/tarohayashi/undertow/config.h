@@ -6,8 +6,16 @@
 #define KEY_INPUT 0
 #define CURSOR_MODE 1
 #define SCROLL_MODE 2
+#define GAME_MODE 3
 
-/* ユーザー設定 */
+
+
+
+
+//////////////////////
+/*    ユーザー設定    */
+//////////////////////
+
 // 入力モードデフォルト
 #define TB_SIDE0_DEFAULT CURSOR_MODE
 #define TB_SIDE1_DEFAULT CURSOR_MODE
@@ -18,7 +26,7 @@
 #define SPD_DEFAULT_SIDE0 3
 #define SPD_DEFAULT_SIDE1 3
 // 角度 = angle * 12
-#define ANGLE_OPTION_MAX    29  // 最大値 
+#define ANGLE_OPTION_MAX    29  // 最大値
 #define ANGLE_DEFAULT_SIDE0 8
 #define ANGLE_DEFAULT_SIDE1 7
 #define SIDE0_INVERT true     // X軸の反転
@@ -26,21 +34,43 @@
 #define SCROLL_INVERT false     // スクロールの反転
 
 // スローモード時カーソル速度
-#define CPI_SLOW 300 
-#define AMP_SLOW 4.0 
+#define CPI_SLOW 300
+#define AMP_SLOW 4.0
 // オートマウスの設定
 #define AUTO_MOUSE_DEFAULT true
 #define AUTO_MOUSE_DEFAULT_LAYER 1
-#define AUTO_MOUSE_TIME 700
-#define AUTO_MOUSE_DELAY 500
+#define AUTO_MOUSE_TIME 750
+#define AUTO_MOUSE_DELAY 750
 #define AUTO_MOUSE_DEBOUNCE 40
-#define AUTO_MOUSE_THRESHOLD 60
+#define AUTO_MOUSE_THRESHOLD 80
 // OLEDモードデフォルト
-#define OLED_DEFAULT true //  true: show layer, false: show stats 
+#define OLED_DEFAULT false //  true: show layer, false: show stats
+
+#define NO_JOYSTICK_VAL 100         // JSの有無判定閾値
+#define JOYSTICK_OFFSET_MIN_DEFAULT 50 // ジョイスティックの小さい値を無視する範囲 最大200
+#define JOYSTICK_OFFSET_MAX_DEFAULT 0 // ジョイスティックの大きい値を無視する範囲 最大200
+#define SCROLL_DIVISOR 50.0        // スクロール用数値調整
+#define JOYSTICK_DIVISOR 40.0       // ジョイスティック用調整用
+#define INTERRUPT_TIME 600          // OLED切り替え時間
+#define KEY_OFFSET 5                // キー入力閾値
+#define TIMEOUT_KEY 50              // キー入力間隔
+#define TERM_TEMP 100               // 一時的モード変更タップ判定ms
+
+// RGBレイヤーデフォルト
+#define RGB_LAYER_DEFAULT true
+
+// 斜め入力防止のデフォルト
+#define DPAD_EX_DEFAULT true
 
 
 
-/* ハードウェア設定 */
+
+
+
+
+
+
+/* ハードウェア設定（変更不要） */
 // SPI
 #define PMW33XX_CS_PINS  {GP1, GP5}
 #define PMW33XX_CS_PINS_RIGHT  {GP1, GP5}
@@ -55,5 +85,7 @@
 // AUTO MOUSE
 #define POINTING_DEVICE_AUTO_MOUSE_ENABLE
 // RGBLIGHT LAYERS
-#define RGBLIGHT_LAYERS
-#define RGBLIGHT_MAX_LAYERS 5
+#define RGBLIGHT_LAYERS_RETAIN_VAL
+// JOYSTICK
+#define JOYSTICK_AXIS_COUNT 2
+#define JOYSTICK_AXIS_RESOLUTION 10

@@ -26,6 +26,17 @@ enum TH_keycodes{
     MOD_SCRL,
     MOD_KEY,
     MOD_SLOW,
+    RGB_LAYERS,
+    JS_RESET,
+    GP_UP,
+    GP_DOWN,
+    GP_LEFT,
+    GP_RIGHT,
+    MOD_GAME,
+    OFFSET_MIN_D,
+    OFFSET_MIN_I,
+    OFFSET_MAX_D,
+    OFFSET_MAX_I
 };
 
 bool process_record_addedkeycodes(uint16_t keycode, keyrecord_t *record);

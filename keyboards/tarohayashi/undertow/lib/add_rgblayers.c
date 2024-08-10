@@ -2,23 +2,32 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
+#include "lib/common_undertow.h"
 
-// レイヤーごとの発光場所、発光色の設定 
+// レイヤーごとの発光場所、発光色の設定
 const rgblight_segment_t PROGMEM base_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 0, HSV_YELLOW} );
-const rgblight_segment_t PROGMEM layer1[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 3, HSV_YELLOW} );
-const rgblight_segment_t PROGMEM layer2[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 3, HSV_MAGENTA} );
-const rgblight_segment_t PROGMEM layer3[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 3, HSV_WHITE} );
-const rgblight_segment_t PROGMEM layer4[] = RGBLIGHT_LAYER_SEGMENTS( {0, 3, HSV_BLUE} );
-const rgblight_segment_t PROGMEM layer5[] = RGBLIGHT_LAYER_SEGMENTS( {0, 3, HSV_RED} );
+const rgblight_segment_t PROGMEM onoff_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 1, HSV_YELLOW} );
+const rgblight_segment_t PROGMEM offon_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 1, HSV_MAGENTA} );
+const rgblight_segment_t PROGMEM onon_layer[] = RGBLIGHT_LAYER_SEGMENTS( { 0, 1, HSV_WHITE} );
+const rgblight_segment_t PROGMEM lower_layer[] = RGBLIGHT_LAYER_SEGMENTS( {0, 1, HSV_BLUE} );
+const rgblight_segment_t PROGMEM upper_layer[] = RGBLIGHT_LAYER_SEGMENTS( {0, 1, HSV_CYAN} );
+const rgblight_segment_t PROGMEM util_layer[] = RGBLIGHT_LAYER_SEGMENTS( {0, 1, HSV_CORAL} );
+const rgblight_segment_t PROGMEM mouse_layer[] = RGBLIGHT_LAYER_SEGMENTS( {0, 1, HSV_AZURE} );
+const rgblight_segment_t PROGMEM ball_layer[] = RGBLIGHT_LAYER_SEGMENTS( {0, 1, HSV_GREEN} );
+const rgblight_segment_t PROGMEM light_layer[] = RGBLIGHT_LAYER_SEGMENTS( {0, 1, HSV_PINK} );
 
 // レイヤーごとの発光方法の指定
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     base_layer,
-    layer1,
-    layer2,
-    layer3,
-    layer4,
-    layer5
+    onoff_layer,
+    offon_layer,
+    onon_layer,
+    lower_layer,
+    upper_layer,
+    util_layer,
+    mouse_layer,
+    ball_layer,
+    light_layer
 );
 
 void keyboard_post_init_kb(void) {
@@ -26,11 +35,15 @@ void keyboard_post_init_kb(void) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    rgblight_set_layer_state(0, layer_state_cmp(state, 0));
-    rgblight_set_layer_state(1, layer_state_cmp(state, 1));
-    rgblight_set_layer_state(2, layer_state_cmp(state, 2));
-    rgblight_set_layer_state(3, layer_state_cmp(state, 3));
-    rgblight_set_layer_state(4, layer_state_cmp(state, 4));
-    rgblight_set_layer_state(5, layer_state_cmp(state, 5));
+    rgblight_set_layer_state(0, get_rgblayers() && layer_state_cmp(state, 0));
+    rgblight_set_layer_state(1, get_rgblayers() && layer_state_cmp(state, 1));
+    rgblight_set_layer_state(2, get_rgblayers() && layer_state_cmp(state, 2));
+    rgblight_set_layer_state(3, get_rgblayers() && layer_state_cmp(state, 3));
+    rgblight_set_layer_state(4, get_rgblayers() && layer_state_cmp(state, 4));
+    rgblight_set_layer_state(5, get_rgblayers() && layer_state_cmp(state, 5));
+    rgblight_set_layer_state(6, get_rgblayers() && layer_state_cmp(state, 6));
+    rgblight_set_layer_state(7, get_rgblayers() && layer_state_cmp(state, 7));
+    rgblight_set_layer_state(8, get_rgblayers() && layer_state_cmp(state, 8));
+    rgblight_set_layer_state(9, get_rgblayers() && layer_state_cmp(state, 9));
     return state;
 }

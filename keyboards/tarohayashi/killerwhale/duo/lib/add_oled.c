@@ -7,19 +7,16 @@
 #include "lib/glcdfont.c"
 #include "lib/add_keycodes.h"
 
-uint8_t pre_layer;
-uint8_t cur_layer;
+uint8_t pre_layer, cur_layer;
 bool interrupted;
-uint16_t interrupted_time;
-uint16_t interrupt_type;
+uint16_t interrupted_time, tempch_time;
+uint16_t interrupt_type, tempch_type;
 bool tempch;
-uint16_t tempch_time;
-uint16_t tempch_type;
 
 // 初期化
 void oled_init_addedoled(void){
     pre_layer = 0;
-    cur_layer = 0;  
+    cur_layer = 0;
     interrupted = false;
     interrupted_time = 0;
     interrupt_type = 0;
@@ -165,6 +162,8 @@ bool oled_task_addedoled(void) {
                         oled_write_P(PSTR("CURSOR MODE LEFT     "), false);
                     }else if(kw_config.pd_mode_l == KEY_INPUT){
                         oled_write_P(PSTR("KEY INPUT MODE LEFT  "), false);
+                    }else if(kw_config.pd_mode_l == GAME_MODE){
+                        oled_write_P(PSTR("GAME MODE LEFT       "), false);
                     }
                     break;
                 case R_CHMOD:
@@ -174,6 +173,8 @@ bool oled_task_addedoled(void) {
                         oled_write_P(PSTR("CURSOR MODE RIGHT    "), false);
                     }else if(kw_config.pd_mode_r == KEY_INPUT){
                         oled_write_P(PSTR("KEY INPUT MODE RIGHT "), false);
+                    }else if(kw_config.pd_mode_r == GAME_MODE){
+                        oled_write_P(PSTR("GAME MODE RIGHT      "), false);
                     }
                     break;
                 case AUTO_MOUSE:
@@ -198,11 +199,26 @@ bool oled_task_addedoled(void) {
                     }
                     break;
                 case QK_USER_15:
-                    if(kw_config.rgb_layer){
+                    if(kw_config.rgb_layers){
                         oled_write_P(PSTR("RGBLIGHT LAYER ON    "), false);
                     }else{
                         oled_write_P(PSTR("RGBLIGHT LAYER OFF   "), false);
                     }
+                    break;
+                case QK_USER_16:
+                        oled_write_P(PSTR("JOYSTICK INITIALIZED "), false);
+                    break;
+                case QK_USER_22:
+                case QK_USER_23:
+                        oled_write_P(PSTR("OFFSET MIN: "), false);
+                        oled_write(get_u16_str(get_joystick_offset_min(), ' '), false);
+                        oled_write_P(PSTR("   "), false);
+                    break;
+                case QK_USER_24:
+                case QK_USER_25:
+                        oled_write_P(PSTR("OFFSET MAX: "), false);
+                        oled_write(get_u16_str(get_joystick_offset_max(), ' '), false);
+                        oled_write_P(PSTR("   "), false);
                     break;
             }
         }else{
@@ -255,7 +271,7 @@ bool oled_task_addedoled(void) {
         }else{
             oled_write_P(PSTR(" L:"), false);
             oled_write(get_u16_str(600 + (uint16_t)kw_config.spd_l * 300, ' '), false);
-        } 
+        }
         if(get_joystick_attached() == JOYSTICK_RIGHT){
             oled_write_P(PSTR(" J:"), false);
             oled_write(get_u16_str(16 + (uint16_t)kw_config.spd_r * 3, ' '), false);
@@ -280,7 +296,7 @@ bool oled_task_addedoled(void) {
         oled_write(get_u16_str((uint16_t)kw_config.angle_r * 12, ' '), false);
 
         oled_set_cursor(0, 2);
-        oled_write_P(PSTR("AXIS"), false); 
+        oled_write_P(PSTR("AXIS"), false);
         if(get_joystick_attached() == JOYSTICK_LEFT){
             oled_write_P(PSTR(" J:"), false);
         }else{
@@ -313,6 +329,8 @@ bool oled_task_addedoled(void) {
             oled_write_P(PSTR("SCROL"), false);
         }else if(kw_config.pd_mode_l == CURSOR_MODE){
             oled_write_P(PSTR("CURSR"), false);
+        }else if(kw_config.pd_mode_l == GAME_MODE){
+            oled_write_P(PSTR(" GAME"), false);
         }else{
             oled_write_P(PSTR("  KEY"), false);
         }
@@ -325,9 +343,11 @@ bool oled_task_addedoled(void) {
             oled_write_P(PSTR("SCROL"), false);
         }else if(kw_config.pd_mode_r == CURSOR_MODE){
             oled_write_P(PSTR("CURSR"), false);
+        }else if(kw_config.pd_mode_r == GAME_MODE){
+            oled_write_P(PSTR(" GAME"), false);
         }else{
             oled_write_P(PSTR("  KEY"), false);
-        } 
+        }
     }
     // 修飾キー表示処理
     uint8_t mod_state = get_mods();

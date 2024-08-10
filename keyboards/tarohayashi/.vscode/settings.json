@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "addencoders.h": "c",
-        "addkeycodes.h": "c",
-        "add_keycodes.h": "c",
-        "add_oled.h": "c"
-    }
-}
