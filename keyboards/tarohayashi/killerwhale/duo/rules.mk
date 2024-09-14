@@ -6,7 +6,7 @@ SRC += analog.c
 SRC += lib/common_killerwhale.c
 SRC += lib/add_keycodes.c
 SRC += lib/add_oled.c
-SRC += lib/add_rgblayers.c
+# SRC += lib/add_rgblayers.c
 
 OS_DETECTION_ENABLE = yes
 NO_USB_STARTUP_CHECK = yes
