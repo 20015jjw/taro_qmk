@@ -30,6 +30,8 @@ int8_t layer;
 int16_t keycode_up_l, keycode_up_r, keycode_down_l, keycode_down_r, keycode_left_l, keycode_left_r, keycode_right_l,  keycode_right_r;
 int16_t key_timer_l, key_timer_r;
 
+
+
 // 斜め入力防止用変数
 bool dpad_exclusion;
 uint8_t dpad_pressed_l, dpad_pressed_r;
@@ -78,6 +80,10 @@ bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record) {
 }
 // 実タスク
 bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
+
+#ifdef CONSOLE_ENABLE
+    uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+#endif
     // 追加キーコードタスク
     process_record_addedkeycodes(keycode, record);
 
@@ -477,16 +483,15 @@ report_mouse_t pointing_device_gaming(bool is_left, int16_t gp28_val, int16_t gp
 }
 
 
-
-// 実タスク
+// 実タスク (Actual task)
 report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
-    // ジョイスティックの値
+    // ジョイスティックの値 (Joystick values)
     double x_val_js = 0.0;
     double y_val_js = 0.0;
     int16_t gp28_val = 0;
     int16_t gp27_val = 0;
     if((bool)joystick_attached){
-        // amprifier値決定
+        // amprifier値決定 (Determine amplifier value)
         double amp_temp = 1.0;
         if(joystick_attached == JOYSTICK_LEFT){
             if(slow_mode){
@@ -523,13 +528,13 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
                     break;
             }
         }
-        // 数値の取得と補正
+        // 数値の取得と補正 (Acquisition and correction of values)
         gp28_val = analogReadPin(GP28);
         gp27_val = analogReadPin(GP27);
         int16_t temp_x_val = gp28_val - gp28_newt;
         int16_t temp_y_val = gp27_val - gp27_newt;
 
-        // 最大値最小値の更新
+        // 最大値最小値の更新 (Update max and min values)
         if(gp28_val > gp28_max){
             gp28_max = gp28_val;
         }else if(gp28_val < gp28_min){
@@ -552,7 +557,7 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
         x_val_js = ( (double)temp_x_val / JOYSTICK_DIVISOR ) * amp_temp;
         y_val_js = ( (double)temp_y_val / JOYSTICK_DIVISOR ) * amp_temp;
     }
-    // マウスの数値はそのまま使う
+    // マウスの数値はそのまま使う (Use mouse values as they are)
     double x_val_l = 0.0;
     double y_val_l = 0.0;
     double x_val_r = 0.0;
@@ -575,7 +580,7 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
         y_val_r = (double)right_report.y;
     }
 
-    // 角度補正
+    // 角度補正 (Angle correction)
     double rad = (double)kw_config.angle_l * 12.0 * (M_PI / 180.0) * -1.0;
     double x_rev_l =  + x_val_l * cos(rad) - y_val_l * sin(rad);
     double y_rev_l =  + x_val_l * sin(rad) + y_val_l * cos(rad);
@@ -583,12 +588,12 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
     double x_rev_r =  + x_val_r * cos(rad) - y_val_r * sin(rad);
     double y_rev_r =  + x_val_r * sin(rad) + y_val_r * cos(rad);
 
-    // x軸反転処理
+    // x軸反転処理 (X-axis inversion process)
     if(kw_config.inv_l){ x_rev_l = -1.0 * x_rev_l; }
     if(kw_config.inv_r){ x_rev_r = -1.0 * x_rev_r; }
 
-    /* 数値処理 */
-    // ジョイスティック側だけ一時的モード変更
+    /* 数値処理 (Data processing) */
+    // ジョイスティック側だけ一時的モード変更 (Temporary mode change for joystick side only)
     uint8_t forced = 0;
     if(force_gaming){
         if(joystick_attached == JOYSTICK_LEFT){
@@ -599,7 +604,7 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
             forced = JOYSTICK_RIGHT;
         }
     }
-    // 一時的モード変更
+    // 一時的モード変更 (Temporary mode change)
     if(force_cursoring){
         left_report = pointing_device_cursoring(x_rev_l, y_rev_l);
         right_report = pointing_device_cursoring(x_rev_r, y_rev_r);
@@ -610,7 +615,7 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
         left_report = pointing_device_key_input(true, x_rev_l, y_rev_l);
         right_report = pointing_device_key_input(false, x_rev_r, y_rev_r);
     }else{
-        // 左手処理
+        // 左手処理 (Left-hand processing)
         if (forced != JOYSTICK_LEFT){
             if(kw_config.pd_mode_l == CURSOR_MODE){
                 left_report = pointing_device_cursoring(x_rev_l, y_rev_l);
@@ -622,7 +627,7 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
                 left_report = pointing_device_gaming(true, gp28_val, gp27_val);
             }
         }
-        // 右手処理
+        // 右手処理 (Right-hand processing)
         if (forced != JOYSTICK_RIGHT){
             if(kw_config.pd_mode_r == CURSOR_MODE){
                 right_report = pointing_device_cursoring(x_rev_r, y_rev_r);
